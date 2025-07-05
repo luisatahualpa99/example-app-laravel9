@@ -298,13 +298,14 @@ body.sidebar-collapsed .sidebar-nav-button .arrow-icon {
 }
 
 
-/* Estilo para la barra de desplazamiento */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: #2b3a4e;
-}
-::-webkit-scrollbar-thumb {
-    background: #4a5a6e;
-}
+
+        /* Estilo para la barra de desplazamiento */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2b3a4e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5a6e;
+          

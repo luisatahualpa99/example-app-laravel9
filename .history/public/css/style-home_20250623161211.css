@@ -298,6 +298,7 @@ body.sidebar-collapsed .sidebar-nav-button .arrow-icon {
 }
 
 
+
 /* Estilo para la barra de desplazamiento */
 ::-webkit-scrollbar {
     width: 8px;
@@ -307,4 +308,4 @@ body.sidebar-collapsed .sidebar-nav-button .arrow-icon {
 }
 ::-webkit-scrollbar-thumb {
     background: #4a5a6e;
-}
+    
