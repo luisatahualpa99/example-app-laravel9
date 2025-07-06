@@ -1,92 +1,68 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.getElementById('sidebar');
-    const toggleSidebarButton = document.getElementById('toggleSidebar');
-    const mainContent = document.getElementById('mainContent');
-    const menuButtons = document.querySelectorAll('.sidebar-nav-button');
-    const subMenuButtons = document.querySelectorAll('.sidebar-subitem-button');
-    const dashboardTitle = document.getElementById('dashboardTitle');
+document.addEventListener('DOMContentLoaded', function() {
+    // Selecciona todos los elementos que pueden tener un submenú
+    const submenuToggles = document.querySelectorAll('[data-submenu-toggle]');
 
-    let activeMenu = 'Dashboards';
-    let activeSubMenu = 'Default';
+    submenuToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(event) {
+            event.preventDefault(); // Evita la navegación por defecto del enlace
 
-    // Función para actualizar el título del dashboard
-    const updateDashboardTitle = () => {
-        let titleText = 'Bienvenido al Dashboard';
-        if (activeSubMenu) {
-            titleText += ` ${activeSubMenu}`;
-        } else if (activeMenu) {
-            titleText += ` ${activeMenu}`;
-        }
-        dashboardTitle.textContent = titleText;
-    };
+            const targetId = this.dataset.submenuToggle;
+            const submenu = document.getElementById(targetId);
+            const icon = this.querySelector('i.fa-chevron-down'); // Selecciona el icono de chevron
 
-    // Manejar clic en botón de alternar barra lateral
-    toggleSidebarButton.addEventListener('click', () => {
-        document.body.classList.toggle('sidebar-collapsed');
-    });
-
-    // Manejar clics en los botones del menú principal
-    menuButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const menuName = button.dataset.menu;
-            const subitemsContainer = document.querySelector(`.sidebar-subitems[data-parent-menu="${menuName}"]`);
-            const arrowIcon = button.querySelector('.arrow-icon');
-
-            // Desactivar todos los menús y submenús
-            menuButtons.forEach(btn => btn.classList.remove('active', 'expanded'));
-            subMenuButtons.forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.sidebar-subitems').forEach(sub => sub.classList.add('hidden-subitems'));
-
-            if (activeMenu === menuName) {
-                // Si el menú activo es el mismo, lo colapsamos y desactivamos
-                activeMenu = '';
-                activeSubMenu = '';
-                updateDashboardTitle();
-            } else {
-                // Activar el menú clicado
-                button.classList.add('active', 'expanded');
-                activeMenu = menuName;
-
-                if (subitemsContainer) {
-                    subitemsContainer.classList.remove('hidden-subitems');
-                    // Si el menú tiene subelementos, activa el primero por defecto
-                    const firstSubItem = subitemsContainer.querySelector('.sidebar-subitem-button');
-                    if (firstSubItem) {
-                        firstSubItem.classList.add('active');
-                        activeSubMenu = firstSubItem.dataset.submenu;
-                    } else {
-                        activeSubMenu = ''; // No hay submenús
+            if (submenu) {
+                // Cierra todos los demás submenús abiertos, excepto el que se está abriendo
+                document.querySelectorAll('.submenu').forEach(otherSubmenu => {
+                    if (otherSubmenu !== submenu && otherSubmenu.style.display === 'block') {
+                        otherSubmenu.style.display = 'none';
+                        const otherToggle = document.querySelector(`[data-submenu-toggle="${otherSubmenu.id}"]`);
+                        if (otherToggle) {
+                            otherToggle.classList.remove('submenu-open');
+                            otherToggle.querySelector('i.fa-chevron-down')?.classList.remove('rotate-180');
+                        }
                     }
+                });
+
+                // Alterna la visibilidad del submenú actual
+                if (submenu.style.display === 'block') {
+                    submenu.style.display = 'none';
+                    this.classList.remove('submenu-open');
+                    icon.classList.remove('rotate-180'); // Gira el icono de vuelta
                 } else {
-                    activeSubMenu = ''; // No tiene submenús
+                    submenu.style.display = 'block';
+                    this.classList.add('submenu-open');
+                    icon.classList.add('rotate-180'); // Gira el icono
                 }
-                updateDashboardTitle();
             }
         });
     });
 
-    // Manejar clics en los botones de submenú
-    subMenuButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            subMenuButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            activeSubMenu = button.dataset.submenu;
-            updateDashboardTitle();
+    // Manejo de la clase 'active' para los ítems del submenú
+    const submenuItems = document.querySelectorAll('.submenu-item');
+    submenuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remueve la clase 'active' de todos los ítems de submenú
+            submenuItems.forEach(sub => sub.classList.remove('active'));
+            // Agrega la clase 'active' al ítem clickeado
+            this.classList.add('active');
+
+            // Opcional: Si un ítem de submenú se activa, asegúrate de que su menú principal también tenga un estilo "activo"
+            // Esto ya está manejado por la clase 'submenu-open' en el padre, pero podrías querer una clase 'active' en el nav-item principal también.
+            // Para este ejemplo, el nav-item principal solo tiene la clase 'submenu-open' cuando el submenú está abierto.
         });
     });
 
-    // Inicializar el estado activo del menú y submenú al cargar
-    const initialActiveMenuButton = document.querySelector(`.sidebar-nav-button[data-menu="${activeMenu}"]`);
-    if (initialActiveMenuButton) {
-        initialActiveMenuButton.classList.add('active', 'expanded');
-        const initialSubitemsContainer = document.querySelector(`.sidebar-subitems[data-parent-menu="${activeMenu}"]`);
-        if (initialSubitemsContainer) {
-            initialSubitemsContainer.classList.remove('hidden-subitems');
-            const initialActiveSubMenuButton = document.querySelector(`.sidebar-subitem-button[data-submenu="${activeSubMenu}"]`);
-            if (initialActiveSubMenuButton) {
-                initialActiveSubMenuButton.classList.add('active');
+    // Asegura que el submenú de Email esté abierto por defecto si "Inbox" es activo
+    const inboxItem = document.querySelector('.submenu-item.active');
+    if (inboxItem) {
+        const parentSubmenu = inboxItem.closest('.submenu');
+        if (parentSubmenu) {
+            parentSubmenu.style.display = 'block';
+            const parentToggle = document.querySelector(`[data-submenu-toggle="${parentSubmenu.id}"]`);
+            if (parentToggle) {
+                parentToggle.classList.add('submenu-open');
+                parentToggle.querySelector('i.fa-chevron-down')?.classList.add('rotate-180');
             }
         }
     }
-    updateDashboardTitle(); // Asegura que el título inicial sea correcto
 });
